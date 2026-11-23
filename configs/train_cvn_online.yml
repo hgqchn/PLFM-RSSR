@@ -1,0 +1,76 @@
+exp_name: plfm_rssr_online
+output_dir: output
+scale: 4
+manual_seed: ~
+vae: ldm-vq-f4-sr
+vq_model: ~
+model:
+  name: PLFM-RSSR
+  path: plfm_rssr.framework_model.PLFMModel
+network_g:
+  name: PLFMRSSR
+  path: plfm_rssr.network.PLFMRSSR
+datasets:
+  train:
+    path: simplesr.data.dataset.PairedImageDataset
+    kwargs:
+      name: dota_train_x4
+      dataroot_gt: data/train/HR
+      dataroot_lq: data/train/LR
+      phase: train
+      scale: 4
+      use_augment: true
+      io_backend_opt: {type: disk}
+      gt_size: 256
+    dataset_enlarge_ratio: 1
+    batch_size_per_gpu: 16
+    num_worker_per_gpu: 4
+    pin_memory: true
+    persistent_workers: true
+  val:
+    path: simplesr.data.dataset.PairedImageDataset
+    kwargs:
+      name: dota_val_x4
+      dataroot_gt: data/val/HR
+      dataroot_lq: data/val/LR
+      phase: val
+      scale: 4
+      use_augment: false
+      io_backend_opt: {type: disk}
+    batch_size: 16
+    num_worker: 4
+    pin_memory: true
+    persistent_workers: true
+flow_matching:
+  validation_seed: 12345
+  inference:
+    sample_steps: 10
+    ode_method: euler
+train:
+  ema_decay: 0.999
+  total_iter: 100000
+  accumulation_steps: 2
+  warmup_iter: 1000
+  fm_weight: 0.5
+  auxiliary_losses: {endpoint_latent_mse: 0.5}
+  optim_g: {type: AdamW, lr: 0.00005, weight_decay: 0, betas: [0.9, 0.999]}
+  scheduler: {type: MultiStepLR, milestones: [], gamma: 1.0}
+val:
+  val_freq: 10000
+  full_iters: [10000]
+  max_samples: 120
+  save_img: true
+  save_per_image_metrics: true
+  metrics:
+    psnr: {type: calculate_psnr, crop_border: 4, test_y_channel: false, better: higher}
+    ssim: {type: calculate_ssim, crop_border: 4, test_y_channel: false, better: higher}
+    lpips: {type: calculate_lpips, crop_border: 4, input_order: HWC, net: alex, better: lower}
+    dists: {type: calculate_dists, crop_border: 4, input_order: HWC, better: lower}
+log_settings:
+  print_freq: 100
+  save_checkpoint_freq: 10000
+  train_pbar: false
+  val_pbar: false
+  csv_flush_freq: 1
+path:
+  lpp_weights: weights/lpp.pth

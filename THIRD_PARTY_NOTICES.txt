@@ -1,0 +1,32 @@
+Third-party notices
+
+SwinIR
+Image Restoration Using Swin Transformer
+Originally written by Ze Liu and modified by Jingyun Liang.
+Source: https://github.com/JingyunLiang/SwinIR
+The Swin Transformer and restoration layers were adapted for PLFM-RSSR.
+License: Apache License 2.0, see licenses/Apache-2.0.txt.
+
+BasicSR and MMCV
+Copyright 2018-2022 BasicSR Authors
+SimpleSR includes training, data, loss and metric code adapted from BasicSR.
+Its file backend is adapted from MMCV.
+Sources: https://github.com/XPixelGroup/BasicSR and https://github.com/open-mmlab/mmcv
+License: Apache License 2.0, see licenses/Apache-2.0.txt.
+
+OpenAI diffusion utilities
+Copyright (c) 2021 OpenAI
+The sinusoidal timestep embedding follows the diffusion utilities.
+Source: https://github.com/openai/guided-diffusion
+License: MIT, see licenses/MIT.txt.
+
+DiffJPEG
+Copyright (c) 2021 Michael R Lomnitz
+The offline degradation pipeline uses an adapted DiffJPEG implementation.
+Source: https://github.com/mlomnitz/DiffJPEG
+License: MIT, see licenses/MIT.txt.
+
+CompVis VQ-f4
+The external autoencoder is loaded with the Diffusers VQModel API.
+Source: https://huggingface.co/CompVis/ldm-super-resolution-4x-openimages
+The model files are obtained separately under their upstream terms.

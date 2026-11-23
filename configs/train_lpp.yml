@@ -1,0 +1,69 @@
+exp_name: lpp
+output_dir: output
+scale: 4
+manual_seed: ~
+vae: ldm-vq-f4-sr
+vq_model: ~
+model:
+  name: LPP
+  path: plfm_rssr.framework_model.LPPModel
+network_g:
+  name: RSTBLatentFrontend
+  path: plfm_rssr.swin.RSTBLatentFrontend
+datasets:
+  train:
+    path: simplesr.data.dataset.PairedImageDataset
+    kwargs:
+      name: dota_train_x4
+      dataroot_gt: data/train/HR
+      dataroot_lq: data/train/LR
+      phase: train
+      scale: 4
+      use_augment: true
+      io_backend_opt: {type: disk}
+      gt_size: 256
+    dataset_enlarge_ratio: 1
+    batch_size_per_gpu: 4
+    num_worker_per_gpu: 4
+    pin_memory: true
+    persistent_workers: true
+  val:
+    path: simplesr.data.dataset.PairedImageDataset
+    kwargs:
+      name: dota_val_x4
+      dataroot_gt: data/val/HR
+      dataroot_lq: data/val/LR
+      phase: val
+      scale: 4
+      use_augment: false
+      io_backend_opt: {type: disk}
+    batch_size: 16
+    num_worker: 4
+    pin_memory: true
+    persistent_workers: true
+train:
+  ema_decay: 0.999
+  total_iter: 100000
+  accumulation_steps: 8
+  warmup_iter: -1
+  lambda_latent: 0.01
+  lambda_image: 1.0
+  optim_g: {type: Adam, lr: 0.0002, weight_decay: 0, betas: [0.9, 0.99]}
+  scheduler: {type: MultiStepLR, milestones: [50000, 80000, 90000, 95000], gamma: 0.5}
+val:
+  val_freq: 10000
+  max_samples: 120
+  save_img: true
+  save_per_image_metrics: true
+  metrics:
+    psnr: {type: calculate_psnr, crop_border: 4, test_y_channel: false, better: higher}
+    ssim: {type: calculate_ssim, crop_border: 4, test_y_channel: false, better: higher}
+    lpips: {type: calculate_lpips, crop_border: 4, input_order: HWC, net: alex, better: lower}
+    dists: {type: calculate_dists, crop_border: 4, input_order: HWC, better: lower}
+log_settings:
+  print_freq: 100
+  save_checkpoint_freq: 10000
+  train_pbar: false
+  val_pbar: false
+  csv_flush_freq: 1
+path: {}
